@@ -276,3 +276,10 @@ This course involves intentionally breaking production-like environments. Always
 **Ready to begin your journey? Start with [Day 1: Foundation](docs/day-01-foundation.md)**
 
 *"The best way to learn Kubernetes is to break it, fix it, and break it again. Welcome to the chaos."*
+
+## 📝 Note on Deprecated Commands
+
+Some commands in this course use `kubectl run` which is deprecated but still functional. For modern alternatives:
+- Use `kubectl create deployment` + `kubectl exec` instead of `kubectl run`
+- Use `kubectl apply -f` for complex pod specifications
+- Use `kubectl debug` for debugging scenarios
