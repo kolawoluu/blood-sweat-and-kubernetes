@@ -13,7 +13,6 @@ Imagine you're organizing a big school play with 100 students. You need:
 ---
 
 ## The Big Picture: Control Plane vs Workers
-
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    KUBERNETES CLUSTER                        │
@@ -273,7 +272,6 @@ Your traffic goes to pod at 10.244.0.5
 ---
 
 ## How They Work Together - Complete Flow
-
 ```
 📱 You type: kubectl create deployment nginx --replicas=3
        ↓
@@ -328,7 +326,7 @@ Result: 3 nginx pods running, accessible via service! ✨
 
 ---
 
-## Why Each Component Matters - Real Disasters
+## Why Each Component Matters
 
 ### When API Server Dies
 **What happens:**
@@ -336,11 +334,6 @@ Result: 3 nginx pods running, accessible via service! ✨
 - No changes can be made to cluster
 - Existing apps keep running (workers don't need API for that)
 - But cluster is "frozen" - can't deploy, scale, or update
-
-**Real incident:** AWS us-east-1, 2017
-- API servers overloaded during scale event
-- Customers couldn't deploy new services for 2 hours
-- Existing services ran fine, but no changes possible
 
 ---
 
@@ -351,11 +344,9 @@ Result: 3 nginx pods running, accessible via service! ✨
 - Can't save any new information
 - Cluster becomes read-only
 
-**Real incident:** Salesforce, 2019
-- etcd disk filled up completely
-- Couldn't write new data
-- 4-hour outage until disk cleared
+**Why it's critical:**
 - This is why etcd needs fast SSD storage!
+- Regular backups are essential for disaster recovery
 
 ---
 
@@ -366,12 +357,6 @@ Result: 3 nginx pods running, accessible via service! ✨
 - Existing pods keep running fine
 - But can't scale up or add new services
 
-**Real incident:** Uber, 2019
-- Scheduler crashed during traffic surge
-- New ride-matching pods couldn't start
-- Had to manually restart scheduler
-- Lost potential rides for 15 minutes
-
 ---
 
 ### When Controller Manager Dies
@@ -380,12 +365,6 @@ Result: 3 nginx pods running, accessible via service! ✨
 - Pods crash → No replacements created
 - Scale deployments → Nothing happens
 - Cluster is "dumb" - can't maintain desired state
-
-**Real incident:** Monzo Bank, 2019
-- Controller Manager failure during incident
-- Couldn't auto-scale to handle load
-- Had to manually create pods
-- Took 3x longer to resolve incident
 
 ---
 
@@ -396,11 +375,11 @@ Result: 3 nginx pods running, accessible via service! ✨
 - After 5 minutes, pods are evicted
 - Controller creates replacements on healthy nodes
 
-**Real incident:** Target, 2018
-- kubelet memory leak on many nodes
-- Nodes crashed one by one
-- "Zombie pods" - containers running but unreachable
-- Had to drain and reboot affected nodes
+**Common causes:**
+- Memory leaks in kubelet process
+- Node resource exhaustion
+- Network connectivity issues
+- Operating system killing the process
 
 ---
 
@@ -410,12 +389,6 @@ Result: 3 nginx pods running, accessible via service! ✨
 - Can't reach pods via service name
 - Direct pod IP access still works
 - But load balancing stops
-
-**Real incident:** Reddit, 2020
-- kube-proxy memory leak caused OOM
-- Services stopped routing traffic
-- Had to restart kube-proxy on all nodes
-- 30-minute outage
 
 ---
 
@@ -448,7 +421,6 @@ You tell system desired state, it figures out how!
 ### 2. Control Loop
 
 This is THE most important concept in Kubernetes!
-
 ```
 forever {
     current_state = "What exists right now?"
