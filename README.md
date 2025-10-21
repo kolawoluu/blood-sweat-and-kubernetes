@@ -76,18 +76,69 @@ chmod +x scripts/setup-kind.sh
 ```
 
 #### Option 2: Manual Setup
+
+**Prerequisites:**
+- 2 CPUs or more
+- 2GB of free memory
+- 20GB of free disk space
+- Internet connection
+- Container or virtual machine manager (Docker, QEMU, Hyperkit, Hyper-V, KVM, Parallels, Podman, VirtualBox, or VMware Fusion/Workstation)
+
+**Step 1: Detect Your Architecture**
 ```bash
-# Install kubectl
+# Check your system architecture
+uname -m
+# Output examples:
+# x86_64 (Intel/AMD 64-bit)
+# arm64 (Apple Silicon, ARM 64-bit)
+# aarch64 (ARM 64-bit on Linux)
+```
+
+**Step 2: Install kubectl**
+```bash
+# For Linux x86_64
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Install minikube
+# For macOS x86_64
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# For macOS ARM64 (Apple Silicon)
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/arm64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+
+**Step 3: Install minikube**
+```bash
+# For Linux x86_64
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
-# Start cluster
-minikube start --driver=docker --memory=4096 --cpus=2
+# For macOS x86_64
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
+sudo install minikube-darwin-amd64 /usr/local/bin/minikube
+
+# For macOS ARM64 (Apple Silicon)
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-arm64
+sudo install minikube-darwin-arm64 /usr/local/bin/minikube
+
+# For Linux ARM64
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-arm64
+sudo install minikube-linux-arm64 /usr/local/bin/minikube
 ```
+
+**Step 4: Start Cluster**
+```bash
+# Start minikube with Docker driver
+minikube start --driver=docker --memory=4096 --cpus=2
+
+# Alternative: Start with specific Kubernetes version
+minikube start --driver=docker --memory=4096 --cpus=2 --kubernetes-version=v1.28.3
+```
+
+**📖 For Complete Installation Instructions:**
+Visit the [official minikube documentation](https://minikube.sigs.k8s.io/docs/start/) for detailed installation steps for all platforms including Windows, Linux, and macOS with different architectures.
 
 ---
 

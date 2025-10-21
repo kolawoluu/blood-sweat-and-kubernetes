@@ -25,13 +25,27 @@ By the end of this lab, you will:
 ### Step 1: Install Tools
 
 ```bash
-# Install minikube
+# First, check your system architecture on Mac
+uname -m
+# Should show: x86_64, arm64, or aarch64
+
+# Install minikube (choose the right version for your architecture)
+# For macOS x86_64:
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
 sudo install minikube-darwin-amd64 /usr/local/bin/minikube
 
-# Install kubectl
+# For macOS ARM64 (Apple Silicon):
+# curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-arm64
+# sudo install minikube-darwin-arm64 /usr/local/bin/minikube
+
+# Install kubectl (choose the right version for your architecture)
+# For macOS x86_64:
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/amd64/kubectl"
 sudo install kubectl /usr/local/bin/kubectl
+
+# For macOS ARM64 (Apple Silicon):
+# curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/darwin/arm64/kubectl"
+# sudo install kubectl /usr/local/bin/kubectl
 
 # Verify installations
 kubectl version --client
@@ -48,6 +62,9 @@ minikube start --cpus=4 --memory=4096 --driver=docker
 kubectl get nodes
 kubectl get pods -n kube-system
 ```
+
+**📖 Need Installation Help?**
+If you haven't installed minikube yet, visit the [official minikube documentation](https://minikube.sigs.k8s.io/docs/start/) for platform-specific installation instructions.
 
 **Expected Output:**
 ```
@@ -107,16 +124,17 @@ kubectl expose deployment web --port=80 --type=NodePort
 # Check the service
 kubectl get services
 
-# Get the URL to access your app
-minikube service web --url
+# Use port-forward to access your app (works with any driver)
+kubectl port-forward service/web 8080:80
 ```
 
 **Test your app:**
 ```bash
-# Copy the URL from above and test
-curl $(minikube service web --url)
-
+# In another terminal, test your app
+curl http://localhost:8080
 # You should see nginx welcome page HTML
+
+# Or open in browser: http://localhost:8080
 ```
 
 ### Exercise 1.3: Scale Your App
@@ -246,8 +264,12 @@ exit
 
 ```bash
 # Create a test pod to access your service
-kubectl create deployment test --image=busybox --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment test --image=busybox -- sleep 3600
+
+# Wait for pod to be ready
 kubectl wait --for=condition=ready pod -l app=test --timeout=60s
+
+# Exec into the pod
 kubectl exec -it deployment/test -- sh
 
 # Inside the pod, test service connectivity
@@ -256,6 +278,8 @@ wget -O- http://web
 
 # Exit the test pod
 exit
+
+# Clean up
 kubectl delete deployment test
 ```
 
@@ -291,7 +315,7 @@ sudo iptables -t nat -L | grep KUBE
 exit
 
 # Try to access your service again
-kubectl create deployment test --image=busybox --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment test --image=busybox -- sleep 3600
 kubectl wait --for=condition=ready pod -l app=test --timeout=60s
 kubectl exec -it deployment/test -- sh
 
@@ -331,7 +355,7 @@ exit
 kubectl delete pod -n kube-system -l k8s-app=kube-proxy
 
 # Wait 30 seconds, then test
-kubectl create deployment test --image=busybox --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment test --image=busybox -- sleep 3600
 kubectl wait --for=condition=ready pod -l app=test --timeout=60s
 kubectl exec -it deployment/test -- sh
 wget -O- http://web
@@ -397,7 +421,7 @@ kubectl describe node minikube
 kubectl delete daemonset coredns -n kube-system
 
 # Try DNS lookup
-kubectl create deployment test --image=busybox --dry-run=client -o yaml | kubectl apply -f -
+kubectl create deployment test --image=busybox -- sleep 3600
 kubectl wait --for=condition=ready pod -l app=test --timeout=60s
 kubectl exec -it deployment/test -- nslookup kubernetes
 # What breaks? Why?
